@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<package>
+  <metadata>
+    <id>nuget_cpp</id>
+    <version>0.1.0</version>
+    <title>nuget_cpp (Install)</title>
+    <authors>Robert Mikhayelyan</authors>
+    <projectUrl>https://github.com/robmikh/nuget_cpp/</projectUrl>
+    <tags>nuget_cpp nuget cpp pack</tags>
+    <summary>A tool that assists in packaging C++/WinRT components for NuGet.</summary>
+    <description>A tool that assists in packaging C++/WinRT components for NuGet.</description>
+  </metadata>
+  <files>
+    <file src="**" target="tools" />
+  </files>
+</package>
