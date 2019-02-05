@@ -1,0 +1,9 @@
+[package]
+name = "nuget_cpp"
+version = "0.1.0"
+authors = ["robmikh <rob.mikh@outlook.com>"]
+edition = "2018"
+
+[dependencies]
+glob = "0.2"
+clap = "2.32.0"
