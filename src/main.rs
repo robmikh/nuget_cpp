@@ -1,5 +1,4 @@
 extern crate glob;
-#[macro_use]
 extern crate clap;
 
 use std::io::prelude::*;
@@ -13,61 +12,35 @@ arg_enum!{
     enum Platform {
         x64,
         ARM,
-        x86
+        x86,
+        ARM64,
     }
 }
 
 fn main() {
     let arg_matches = App::new("nuget_cpp")
-                          .version(crate_version!())
-                          .author("Robert Mikhayelyan <rob.mikh@outlook.com>")
-                          .about("A tool that assists in packaging C++/WinRT components for NuGet.")
-                          .arg(Arg::with_name("dir")
+                              .version(crate_version!())
+                              .author("Robert Mikhayelyan <rob.mikh@outlook.com>")
+                              .about("A tool that assists in packaging C++/WinRT components for NuGet.")
+                              .arg(Arg::with_name("dir")
                                    .help("Sets the current directory when running the tool")
                                    .short("d")
                                    .long("dir")
                                    .takes_value(true))
-                          .arg(Arg::with_name("all")
-                                   .help("Restores project, builds all platforms, and packs [overrides everything]")
-                                   .short("a")
-                                   .long("all"))
-                          .arg(Arg::with_name("restore")
-                                   .help("Calls nuget restore")
-                                   .short("r")
-                                   .long("restore"))
-                          .arg(Arg::with_name("build")
-                                   .help("Builds the solution for Release")
-                                   .short("b")
-                                   .long("build")
-                                   .possible_values(&Platform::variants())
-                                   .multiple(true)
-                                   .takes_value(true))
-                          .arg(Arg::with_name("pack")
-                                   .help("Packs the resulting files. Uses the nuget\\ directory")
-                                   .short("p")
-                                   .long("pack"))
-                          .get_matches();
-
-    let all = arg_matches.is_present("all");
-    let restore = all || arg_matches.is_present("restore");
-    let pack = all || arg_matches.is_present("pack");
-    
-    let mut build = false;
-    let mut platforms : Vec<&str> = Vec::new();
-    if all {
-        build = true;
-
-        let temp = ["x64", "ARM", "x86"];
-        for platform in temp.iter() {
-            platforms.push(platform);
-        }
-    } else if arg_matches.is_present("build") {
-        build = true;
-        let build_values = arg_matches.values_of("build").unwrap();
-        for build_value in build_values {
-            platforms.push(build_value);
-        }
-    }
+                              .subcommand(SubCommand::with_name("pack")
+                                          .about("Builds and packs a library. Uses the nuget\\ directory.")
+                                          .arg(Arg::with_name("platform")
+                                               .short("p")
+                                               .long("platform")
+                                               .help("Chooses the platform to build.")
+                                               .possible_values(&Platform::variants())
+                                               .multiple(true)
+                                               .takes_value(true))
+                                          .arg(Arg::with_name("platform-all")
+                                               .short("a")
+                                               .long("platform-all")
+                                               .help("Selects all available platforms to build.")))
+                              .get_matches();
 
     if arg_matches.is_present("dir") {
         let current_dir = arg_matches.value_of("dir").unwrap();
@@ -75,17 +48,21 @@ fn main() {
         env::set_current_dir(current_dir).expect("failed to set current dir");
     }
 
-    if restore {
+    if let Some(arg_matches) = arg_matches.subcommand_matches("pack") {
+        let platforms = {
+            if arg_matches.is_present("platform-all") {
+                vec!["x64", "ARM", "x86", "ARM64"]
+            } else {
+                arg_matches.values_of("platform")
+                           .expect("One ore more platforms must be specified if 'platform-all' is not used.")
+                           .collect::<Vec<_>>()
+            }
+        };
+        
         nuget_restore();
-    }
-    
-    if build {
         for platform in platforms {
             msbuild_release(platform);
         }
-    }
-    
-    if pack {
         nuget_pack();
     }
 }
@@ -101,9 +78,6 @@ fn nuget_restore() {
     }
 }
 
-/*
-msbuild <Solution>.sln /property:Configuration=Release /property:Platform=x64
-*/
 fn msbuild_release(plat: &str) {
     let solution = get_local_solution();
 
