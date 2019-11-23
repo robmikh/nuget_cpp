@@ -13,7 +13,8 @@ arg_enum!{
     enum Platform {
         x64,
         ARM,
-        x86
+        x86,
+        ARM64,
     }
 }
 
@@ -57,7 +58,7 @@ fn main() {
     if all {
         build = true;
 
-        let temp = ["x64", "ARM", "x86"];
+        let temp = ["x64", "ARM", "x86", "ARM64"];
         for platform in temp.iter() {
             platforms.push(platform);
         }
