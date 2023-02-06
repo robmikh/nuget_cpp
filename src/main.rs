@@ -133,23 +133,6 @@ fn msbuild_release<P: AsRef<Path>>(project_path: P, plat: &str) {
     }
 }
 
-/*
-msbuild <Solution>.sln /property:Configuration=Release /property:Platform=x64
-*/
-fn msbuild_release_solution(plat: &str) {
-    let solution = get_local_solution();
-
-    let status = Command::new("msbuild")
-        .arg(solution)
-        .arg("/property:Configuration=Release")
-        .arg(format!("/property:Platform={}", plat))
-        .status()
-        .expect("process failed to execute");
-    if !status.success() {
-        panic!("msbuild for {} failed!", plat);
-    }
-}
-
 fn get_local_solution() -> std::path::PathBuf {
     let current_dir = std::env::current_dir().expect("Failed to query current directory.");
     let mut solution_paths =
