@@ -1,4 +1,4 @@
-use std::{str::FromStr, fmt::Display};
+use std::{fmt::Display, str::FromStr};
 
 use clap::Parser;
 
@@ -6,25 +6,25 @@ use clap::Parser;
 #[derive(Parser, Debug)]
 #[command(author, version, about, long_about = None)]
 pub struct Args {
-   /// Sets the current directory when running the tool
-   #[arg(short, long)]
-   pub dir: Option<String>,
+    /// Sets the current directory when running the tool
+    #[arg(short, long)]
+    pub dir: Option<String>,
 
-   /// Restores project, builds all platforms, and packs [overrides everything]
-   #[arg(short, long)]
-   pub all: bool,
+    /// Restores project, builds all platforms, and packs [overrides everything]
+    #[arg(short, long)]
+    pub all: bool,
 
-   /// Calls nuget restore
-   #[arg(short, long)]
-   pub restore: bool,
+    /// Calls nuget restore
+    #[arg(short, long)]
+    pub restore: bool,
 
-   /// Builds the solution for Release
-   #[arg(short, long)]
-   pub build: Vec<Platform>,
+    /// Builds the solution for Release
+    #[arg(short, long)]
+    pub build: Vec<Platform>,
 
-   /// Packs the resulting files. Uses the nuget\ directory
-   #[arg(short, long)]
-   pub pack: bool,
+    /// Packs the resulting files. Uses the nuget\ directory
+    #[arg(short, long)]
+    pub pack: bool,
 }
 
 #[allow(non_camel_case_types)]

@@ -1,10 +1,10 @@
 mod cli;
 
+use std::env;
+use std::fs::File;
 use std::io::prelude::*;
 use std::path::{Path, PathBuf};
 use std::process::Command;
-use std::fs::File;
-use std::env;
 
 use clap::Parser;
 use cli::{Args, Platform};
@@ -15,7 +15,7 @@ fn main() {
     let all = args.all;
     let restore = all || args.restore;
     let pack = all || args.pack;
-    
+
     let (build, platforms) = {
         let mut platforms = Vec::with_capacity(args.build.len());
         for platform in &args.build {
@@ -39,7 +39,8 @@ fn main() {
     let projects = {
         let mut projects = Vec::new();
         for project_dir in get_project_dirs_with_nuget_dirs() {
-            let project_paths = get_files_with_extension(project_dir, "vcxproj").expect("Failed to search files.");
+            let project_paths =
+                get_files_with_extension(project_dir, "vcxproj").expect("Failed to search files.");
 
             if project_paths.is_empty() {
                 panic!("No project files found!");
@@ -67,7 +68,7 @@ fn main() {
             }
         }
     }
-    
+
     if pack {
         println!("Packing...");
         nuget_pack();
@@ -79,13 +80,13 @@ fn nuget_restore<P: AsRef<Path>>(project_path: P) {
     let solution_dir = solution.parent().unwrap();
 
     let status = Command::new("nuget")
-                         .arg("restore")
-                         .arg(project_path.as_ref())
-                         .arg("-SolutionDirectory")
-                         .arg(solution_dir)
-                         .status()
-                         .expect("process failed to execute");
-    
+        .arg("restore")
+        .arg(project_path.as_ref())
+        .arg("-SolutionDirectory")
+        .arg(solution_dir)
+        .status()
+        .expect("process failed to execute");
+
     if !status.success() {
         panic!("nuget restore failed!");
     }
@@ -121,12 +122,12 @@ fn msbuild_release<P: AsRef<Path>>(project_path: P, plat: &str) {
     let project_name = project_path_name.replace(".", "_");
 
     let status = Command::new("msbuild")
-                         .arg(solution)
-                         .arg(format!("/t:{}", project_name))
-                         .arg("/property:Configuration=Release")
-                         .arg(format!("/property:Platform={}", plat))
-                         .status()
-                         .expect("process failed to execute");
+        .arg(solution)
+        .arg(format!("/t:{}", project_name))
+        .arg("/property:Configuration=Release")
+        .arg(format!("/property:Platform={}", plat))
+        .status()
+        .expect("process failed to execute");
     if !status.success() {
         panic!("msbuild for {} failed!", plat);
     }
@@ -139,11 +140,11 @@ fn msbuild_release_solution(plat: &str) {
     let solution = get_local_solution();
 
     let status = Command::new("msbuild")
-                         .arg(solution)
-                         .arg("/property:Configuration=Release")
-                         .arg(format!("/property:Platform={}", plat))
-                         .status()
-                         .expect("process failed to execute");
+        .arg(solution)
+        .arg("/property:Configuration=Release")
+        .arg(format!("/property:Platform={}", plat))
+        .status()
+        .expect("process failed to execute");
     if !status.success() {
         panic!("msbuild for {} failed!", plat);
     }
@@ -151,7 +152,8 @@ fn msbuild_release_solution(plat: &str) {
 
 fn get_local_solution() -> std::path::PathBuf {
     let current_dir = std::env::current_dir().expect("Failed to query current directory.");
-    let mut solution_paths = get_files_with_extension(current_dir, "sln").expect("Failed to search files.");
+    let mut solution_paths =
+        get_files_with_extension(current_dir, "sln").expect("Failed to search files.");
 
     if solution_paths.is_empty() {
         panic!("No solution files found!");
@@ -167,11 +169,11 @@ fn nuget_pack_directory<P: AsRef<Path>>(nuget_path: P) {
     let version = get_nugetpkg_version(nuget_path);
 
     let status = Command::new("nuget")
-                         .arg("pack")
-                         .arg(nuspec)
-                         .args(&["-version", &version])
-                         .status()
-                         .expect("process failed to execute");
+        .arg("pack")
+        .arg(nuspec)
+        .args(&["-version", &version])
+        .status()
+        .expect("process failed to execute");
     if !status.success() {
         panic!("nuget pack failed!");
     }
@@ -221,7 +223,8 @@ fn nuget_pack() {
 }
 
 fn get_nugetpkg_nuspec<P: AsRef<Path>>(nuget_path: P) -> std::path::PathBuf {
-    let mut nuspec_paths = get_files_with_extension(nuget_path, "nuspec").expect("Failed to look for solution files.");
+    let mut nuspec_paths =
+        get_files_with_extension(nuget_path, "nuspec").expect("Failed to look for solution files.");
 
     if nuspec_paths.is_empty() {
         panic!("No nuspec files found!");
@@ -238,8 +241,7 @@ fn get_nugetpkg_version<P: AsRef<Path>>(nuget_path: P) -> String {
         version_path.push("VERSION");
         version_path
     };
-    let mut version_file = File::open(version_path)
-                                .expect("Failed to open VERSION file");
+    let mut version_file = File::open(version_path).expect("Failed to open VERSION file");
 
     let mut version_string = String::new();
     version_file.read_to_string(&mut version_string).unwrap();
