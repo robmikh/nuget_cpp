@@ -2,7 +2,7 @@
 name = "nuget_cpp"
 version = "0.2.0"
 authors = ["robmikh <rob.mikh@outlook.com>"]
-edition = "2018"
+edition = "2021"
 
 [dependencies]
 clap = { version = "4.1.4", features = [ "derive" ] }
