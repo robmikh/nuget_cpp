@@ -53,6 +53,10 @@ fn main() {
         projects
     };
 
+    if projects.is_empty() {
+        panic!("No projects with nuget directories found.");
+    }
+
     if restore {
         println!("Restoring...");
         for project in &projects {
