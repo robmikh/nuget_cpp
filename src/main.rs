@@ -54,21 +54,21 @@ fn main() {
     };
 
     if projects.is_empty() {
-        panic!("No projects with nuget directories found.");
-    }
-
-    if restore {
-        println!("Restoring...");
-        for project in &projects {
-            nuget_restore(project);
+        println!("No projects with nuget directories found. Skipping restore and build steps.");
+    } else {
+        if restore {
+            println!("Restoring...");
+            for project in &projects {
+                nuget_restore(project);
+            }
         }
-    }
-
-    if build {
-        println!("Building for these platforms: {:?}", &platforms);
-        for project in &projects {
-            for platform in &platforms {
-                msbuild_release(project, &platform);
+    
+        if build {
+            println!("Building for these platforms: {:?}", &platforms);
+            for project in &projects {
+                for platform in &platforms {
+                    msbuild_release(project, &platform);
+                }
             }
         }
     }
